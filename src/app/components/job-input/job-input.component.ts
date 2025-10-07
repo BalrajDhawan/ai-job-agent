@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiService } from '../../services/ai.service';
 
+type ApiKeyStatus = 'valid' | 'invalid' | 'pending' | '';
+
 @Component({
   selector: 'app-job-input',
   standalone: true,
@@ -14,19 +16,22 @@ export class JobInputComponent {
   @Output() pending = new EventEmitter<boolean>();
   @Output() result = new EventEmitter<{ summary: string; suggestions: string[] }>();
 
-  jdText = signal('');
-  apiKey: string = '';
-  apiKeyStatus: 'valid' | 'invalid' | 'pending' | '' = '';
+  jdText = signal<string>('');
+  apiKey = '';
+  apiKeyStatus: ApiKeyStatus = '';
 
-  constructor(private ai: AiService) {
-    // Load API key from localStorage if available
+  constructor(private readonly ai: AiService) {
+    this.loadApiKey();
+  }
+
+  private loadApiKey(): void {
     const storedKey = localStorage.getItem('geminiApiKey');
     if (storedKey) {
       this.apiKey = storedKey;
     }
   }
 
-  saveApiKey() {
+  saveApiKey(): void {
     if (this.isValidApiKey(this.apiKey)) {
       localStorage.setItem('geminiApiKey', this.apiKey);
     }
@@ -36,7 +41,7 @@ export class JobInputComponent {
     return typeof key === 'string' && key.startsWith('AIza');
   }
 
-  async verifyApiKey() {
+  async verifyApiKey(): Promise<void> {
     if (!this.isValidApiKey(this.apiKey)) {
       this.apiKeyStatus = 'invalid';
       return;
@@ -58,24 +63,19 @@ export class JobInputComponent {
       });
       if (res.ok) {
         const data = await res.json();
-        if (data?.candidates?.length > 0) {
-          this.apiKeyStatus = 'valid';
-        } else {
-          this.apiKeyStatus = 'invalid';
-        }
+        this.apiKeyStatus = (data?.candidates?.length > 0) ? 'valid' : 'invalid';
       } else {
         this.apiKeyStatus = 'invalid';
       }
-    } catch (e) {
+    } catch (error) {
       this.apiKeyStatus = 'invalid';
     }
   }
 
-  analyze() {
+  analyze(): void {
     const text = this.jdText().trim();
     if (!text || !this.isValidApiKey(this.apiKey)) return;
     this.pending.emit(true);
-
     this.ai.analyzeJD(text, this.apiKey).subscribe({
       next: (res) => {
         this.result.emit(res);
@@ -87,7 +87,7 @@ export class JobInputComponent {
     });
   }
 
-  updateJD(value: string) {
+  updateJD(value: string): void {
     this.jdText.set(value);
   }
 }
