@@ -1,0 +1,40 @@
+<div class="space-y-4">
+  <label class="block text-sm font-medium text-gray-200">Gemini API Key</label>
+
+  <input
+    type="text"
+    [(ngModel)]="apiKey"
+    (ngModelChange)="saveApiKey()"
+    (blur)="verifyApiKey()"
+    class="w-full p-2 rounded-xl bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder:text-gray-400"
+    placeholder="Enter your Gemini API key (starts with AIza...)" />
+
+  <div *ngIf="apiKeyStatus === 'pending'" class="flex items-center gap-2 text-xs text-gray-400 mt-1">
+    <svg class="animate-spin" width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4"/></svg>
+    Verifying Gemini API key...
+  </div>
+  <div *ngIf="apiKeyStatus === 'valid'" class="flex items-center gap-2 text-xs text-green-400 mt-1">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" fill="none"/></svg>
+    Gemini API key is valid!
+  </div>
+  <div *ngIf="apiKeyStatus === 'invalid'" class="flex items-center gap-2 text-xs text-red-400 mt-1">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none"/><path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" stroke-width="3"/></svg>
+    Invalid Gemini API key.
+  </div>
+
+  <label class="block text-sm font-medium text-gray-200">Job Description (paste text or URL)</label>
+  <textarea
+    [ngModel]="jdText()"
+    (ngModelChange)="updateJD($event)"
+    rows="8"
+    class="w-full p-4 rounded-xl bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder:text-gray-400"
+    placeholder="Paste JD here or a URL to the posting..."></textarea>
+
+  <button
+    (click)="analyze()"
+    [disabled]="!isValidApiKey(apiKey)"
+    class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 active:bg-blue-700 transition text-white font-medium shadow-lg">
+    Analyze Job Description
+  </button>
+  <div *ngIf="apiKey && !isValidApiKey(apiKey)" class="text-red-400 text-xs mt-2">Please enter a valid Gemini API key (starts with AIza).</div>
+</div>

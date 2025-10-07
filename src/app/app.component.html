@@ -1,0 +1,24 @@
+<header class="w-full py-8 text-center">
+  <h1 class="text-3xl md:text-4xl font-semibold tracking-tight">{{ title }}</h1>
+  <p class="mt-2 text-sm text-gray-300">Analyze a Job Description and auto-generate resume bullets</p>
+</header>
+
+<main class="container mx-auto px-4 pb-16">
+  <section class="max-w-4xl mx-auto glass-card p-6 md:p-8">
+    <app-job-input
+      (pending)="onPending($event)"
+      (result)="onResult($event)"></app-job-input>
+
+    <div class="mt-6" *ngIf="isLoading()">
+      <app-loading-spinner label="Analyzing JD..."></app-loading-spinner>
+    </div>
+
+    <div class="mt-8" *ngIf="!isLoading() && summary() && suggestions()" id="results">
+      <app-summary-view [summary]="summary()!" [suggestions]="suggestions()!"></app-summary-view>
+    </div>
+  </section>
+</main>
+
+<footer class="text-center text-xs text-gray-400 py-6">
+  Built with Angular 17 · TailwindCSS · RxJS
+</footer>
